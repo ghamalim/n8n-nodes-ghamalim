@@ -1,0 +1,561 @@
+{
+  "name": "Ghamalim guide 2 - Inbox (tickets, messages, contacts)",
+  "nodes": [
+    {
+      "id": "43a40616-34ee-4027-9801-10e679294470",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "c891eca6-36f7-4915-a8c4-5add4994591b",
+      "name": "Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        -300
+      ],
+      "parameters": {
+        "content": "## Ghamalim guide 2: Inbox\nClick **Execute workflow**: the steps that are switched on only read tickets, messages and contacts.\n\nGrey steps send a real message to a real customer or change a comment. Activate one (select it, press **D**) only when you mean it.\n\nA *ticket* is one conversation with one customer on one channel.",
+        "width": 560,
+        "height": 240,
+        "color": 4
+      }
+    },
+    {
+      "id": "c7ff97aa-491a-4ef9-b3fd-9502801c4e99",
+      "name": "Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -60
+      ],
+      "parameters": {
+        "content": "### 1. Tickets and their messages\n**Get Many** lists conversations newest first (filter by Status). **Get** returns one. **Message > Get Many** returns the thread, oldest first.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "b76652bf-edc4-4f90-8c83-11ea8e1ee77e",
+      "name": "List open tickets",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        0
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 3,
+        "filters": {
+          "status": "pending"
+        }
+      }
+    },
+    {
+      "id": "782ff8bc-b613-4bb6-a17f-44443af63ee5",
+      "name": "Get the ticket",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        0
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "get",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        }
+      }
+    },
+    {
+      "id": "b618f780-f690-49c7-8c19-cf204eef7dc2",
+      "name": "Read its messages",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        600,
+        0
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "getAll",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "returnAll": false,
+        "limit": 5
+      }
+    },
+    {
+      "id": "aed86179-03f1-4495-b8d2-cafbd0c23640",
+      "name": "Note 6",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        200
+      ],
+      "parameters": {
+        "content": "### 2. Contacts and where to reach them\n**Get Channels** answers \"can I message this person now?\": per channel it gives the `ticket_id` to send on, `can_send_text`, and the `reason` when not (for example WhatsApp's 24-hour window).",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "a0b0afb4-a4b5-4214-a815-ef642f2cc071",
+      "name": "List contacts",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        260
+      ],
+      "parameters": {
+        "resource": "contact",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 3,
+        "filters": {}
+      }
+    },
+    {
+      "id": "e9c15117-9824-4d0a-880e-263f87fd89f4",
+      "name": "Get the contact",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        260
+      ],
+      "parameters": {
+        "resource": "contact",
+        "operation": "get",
+        "contactId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        }
+      }
+    },
+    {
+      "id": "6220684c-9114-4272-ae78-39f6f91d6a67",
+      "name": "Where can I reach them?",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        600,
+        260
+      ],
+      "parameters": {
+        "resource": "contact",
+        "operation": "getChannels",
+        "contactId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        }
+      }
+    },
+    {
+      "id": "02ddb95c-75ad-44dd-94b0-11087161d943",
+      "name": "Note 10",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        460
+      ],
+      "parameters": {
+        "content": "### 3. Find a contact from your own system\nLook a contact up by **Phone** (with or without +), **Email**, or **External ID** (your own user ID from web chat identity verification). Replace the example phone with a value from your shop or CRM, e.g. `{{ $json.customer_phone }}`. No match returns no items.",
+        "width": 300,
+        "height": 240,
+        "color": 7
+      }
+    },
+    {
+      "id": "1eae27cf-fe50-4829-baad-bd84a2a7d420",
+      "name": "Find contact by phone",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        520
+      ],
+      "parameters": {
+        "resource": "contact",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {
+          "phone": "+639170000000"
+        }
+      }
+    },
+    {
+      "id": "e02032fa-238a-47f2-946b-03ea5fe2621e",
+      "name": "Note 12",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        740
+      ],
+      "parameters": {
+        "content": "### 4. Reply on a ticket\nSends through the ticket's channel, exactly like an agent reply. In a trigger workflow the ticket is `{{ $json.data.ticket_id }}`. Set **Idempotency Key** when \"Retry On Fail\" is on, so a retry can never message the customer twice.",
+        "width": 300,
+        "height": 240,
+        "color": 7
+      }
+    },
+    {
+      "id": "88e8a2e3-c0c9-4fab-ba60-414aa94690da",
+      "name": "Pick a ticket",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        800
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {
+          "status": "pending"
+        }
+      }
+    },
+    {
+      "id": "644afe85-2b1c-44eb-bb05-8d90e7313f71",
+      "name": "Send a reply",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        800
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "ticket",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "content": "Thank you for your message. We will get back to you shortly.",
+        "attachFile": false,
+        "sendOptions": {
+          "idempotencyKey": "={{ $execution.id }}-{{ $itemIndex }}"
+        }
+      },
+      "disabled": true,
+      "notes": "SENDS a real message to the customer of that ticket.",
+      "notesInFlow": true
+    },
+    {
+      "id": "b749ff89-6773-4d76-b266-e32b3a9b3a8b",
+      "name": "Note 15",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        1020
+      ],
+      "parameters": {
+        "content": "### 5. Message a contact directly\n**Send To: Contact** finds the conversation where this customer can be messaged right now. *Preferred Channel Type* (whatsapp, line, messenger…) favours one. If no channel is open the step stops and says why. A business can only message a customer who has written before.",
+        "width": 300,
+        "height": 260,
+        "color": 7
+      }
+    },
+    {
+      "id": "aec48d6f-80cb-4570-bc5a-5bda25475816",
+      "name": "Pick a contact",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        1080
+      ],
+      "parameters": {
+        "resource": "contact",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      }
+    },
+    {
+      "id": "5ce44e94-82e1-4758-985b-42c012f90e5c",
+      "name": "Send to the contact",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        1080
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "contact",
+        "contactId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "preferredChannelType": "",
+        "content": "Your order has shipped!",
+        "attachFile": false,
+        "sendOptions": {}
+      },
+      "disabled": true,
+      "notes": "SENDS a real message to that customer.",
+      "notesInFlow": true
+    },
+    {
+      "id": "e106e665-ec5f-477e-81dc-62d6909ffb42",
+      "name": "Note 18",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        1320
+      ],
+      "parameters": {
+        "content": "### 6. Send a file\nTurn on **Attach File** and name the input field holding the file (usually `data`). Text becomes the caption. Images up to 5 MB, video and audio 16 MB, documents 20 MB; which types a channel accepts is in Channel > Get (capabilities.api.send_media).",
+        "width": 300,
+        "height": 240,
+        "color": 7
+      }
+    },
+    {
+      "id": "0dbdc136-fb78-4b39-9ce0-e3ce5bae33e9",
+      "name": "Download an image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        120,
+        1380
+      ],
+      "parameters": {
+        "url": "https://app.ghamalim.net/media/app/og-image.png",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "475cae1e-6e67-4359-9c70-1ea8dc3dddc0",
+      "name": "Send the file",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        1380
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "ticket",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": ""
+        },
+        "content": "Here is the brochure.",
+        "attachFile": true,
+        "binaryPropertyName": "data",
+        "sendOptions": {}
+      },
+      "disabled": true,
+      "notes": "SENDS a real file. Paste a Ticket ID first.",
+      "notesInFlow": true
+    },
+    {
+      "id": "f3f642fb-54e4-4562-9cc1-03f1afb5a4b6",
+      "name": "Note 21",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        1600
+      ],
+      "parameters": {
+        "content": "### 7. Moderate a comment\nFor Facebook and Instagram comments (they arrive as messages on a ticket). Hide, Unhide or Delete. Delete is permanent on the platform. The Message ID comes from Message > Get Many or a trigger event.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "0af2e313-3c52-4e41-966a-41c717998962",
+      "name": "Hide a comment",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        1660
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "moderate",
+        "messageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": ""
+        },
+        "moderationAction": "hide"
+      },
+      "disabled": true,
+      "notes": "Changes a real comment. Paste a Message ID first.",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "List open tickets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "List contacts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Find contact by phone",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Pick a ticket",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Pick a contact",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Download an image",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Hide a comment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List open tickets": {
+      "main": [
+        [
+          {
+            "node": "Get the ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get the ticket": {
+      "main": [
+        [
+          {
+            "node": "Read its messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List contacts": {
+      "main": [
+        [
+          {
+            "node": "Get the contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get the contact": {
+      "main": [
+        [
+          {
+            "node": "Where can I reach them?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick a ticket": {
+      "main": [
+        [
+          {
+            "node": "Send a reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick a contact": {
+      "main": [
+        [
+          {
+            "node": "Send to the contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download an image": {
+      "main": [
+        [
+          {
+            "node": "Send the file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Asia/Manila"
+  }
+}

@@ -1,0 +1,515 @@
+{
+  "name": "Ghamalim guide 4 - Trigger (react to events)",
+  "nodes": [
+    {
+      "id": "90d7a0e3-2d8a-4f1a-b8db-a8ab2a2d50ba",
+      "name": "Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        -300
+      ],
+      "parameters": {
+        "content": "## Ghamalim guide 4: Trigger\nThis workflow is **off**. Turning it on makes the trigger register itself in Ghamalim (Settings > Webhooks); turning it off removes it again.\n\nTo test without a customer: turn it on, then press **Send test event** on that webhook in Ghamalim. Every event arrives as `{ id, event, created_at, data }`. Ticket events carry `data.ticket_id`, `data.contact_id`, `data.channel_id` and `data.channel_type`.",
+        "width": 560,
+        "height": 240,
+        "color": 4
+      }
+    },
+    {
+      "id": "9d8b70fa-cb16-4ed4-9790-dc78ef773a1a",
+      "name": "Ghamalim Trigger",
+      "type": "n8n-nodes-ghamalim.ghamalimTrigger",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        300
+      ],
+      "parameters": {
+        "events": [
+          "message.received",
+          "ticket.created",
+          "ticket.resolved",
+          "csat.submitted",
+          "sla.breached",
+          "post.published",
+          "post.failed",
+          "message.failed"
+        ]
+      }
+    },
+    {
+      "id": "cfb8c51a-26bc-4b97-b0b0-1fb0763b0bc6",
+      "name": "Which event?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -240,
+        300
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "de0cfd7d-d2f8-4f29-a39a-214d8c7e305a",
+                    "leftValue": "={{ $json.event }}",
+                    "rightValue": "message.received",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Customer message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4d68650c-6867-4239-a1d0-1167a81f4283",
+                    "leftValue": "={{ $json.event }}",
+                    "rightValue": "ticket.created",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "New ticket"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "cfa5096e-b255-40e9-857d-a4c5dd1a47c7",
+                    "leftValue": "={{ $json.event }}",
+                    "rightValue": "post.published",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Post published"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "686333ec-f096-45ef-af92-8b4735c97e77",
+                    "leftValue": "={{ $json.event }}",
+                    "rightValue": "post.failed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Post failed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c2d873ec-c028-4d9b-9382-4557476669a0",
+                    "leftValue": "={{ $json.event }}",
+                    "rightValue": "sla.breached",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SLA breached"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      }
+    },
+    {
+      "id": "0a59de9f-49f1-4a51-aad0-0b70dac1b5e5",
+      "name": "Note 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        460
+      ],
+      "parameters": {
+        "content": "### Choose the events\nOpen the trigger and tick what should start the workflow. An event that is delivered twice (a retry) starts it once. Deliveries are checked against the signing secret, so nobody else can start this workflow.",
+        "width": 300,
+        "height": 200,
+        "color": 7
+      }
+    },
+    {
+      "id": "78f91990-bd45-496d-9498-f8655624c885",
+      "name": "Note 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        40,
+        -60
+      ],
+      "parameters": {
+        "content": "### Customer message\nReads who wrote and where they can be reached. The grey step is an automatic reply on the same ticket. Put an AI Agent between the two for an AI answer, using `{{ $json.data.content }}` as the question.",
+        "width": 300,
+        "height": 210,
+        "color": 7
+      }
+    },
+    {
+      "id": "ce0bf360-9e78-4736-85c4-dec7e8e7faee",
+      "name": "Who wrote?",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        400,
+        0
+      ],
+      "parameters": {
+        "resource": "contact",
+        "operation": "get",
+        "contactId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Ghamalim Trigger').item.json.data.contact_id }}"
+        }
+      }
+    },
+    {
+      "id": "280bc01e-b5c5-4c96-9788-6b3553442425",
+      "name": "Auto-reply",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        640,
+        0
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "ticket",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Ghamalim Trigger').item.json.data.ticket_id }}"
+        },
+        "content": "Thanks for your message! Our team will reply soon.",
+        "attachFile": false,
+        "sendOptions": {
+          "idempotencyKey": "={{ $('Ghamalim Trigger').item.json.id }}"
+        }
+      },
+      "disabled": true,
+      "notes": "SENDS a real reply to every customer message once activated.",
+      "notesInFlow": true
+    },
+    {
+      "id": "0770daba-141b-4f3b-9623-39034ae8da78",
+      "name": "Note 7",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        40,
+        180
+      ],
+      "parameters": {
+        "content": "### New ticket\nA new conversation started. Fetch the ticket, then notify your team (Slack, email) or create a record in your CRM.",
+        "width": 300,
+        "height": 210,
+        "color": 7
+      }
+    },
+    {
+      "id": "114b9fd3-32d8-4b1a-bfc1-3312cf70216d",
+      "name": "Get the new ticket",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        400,
+        240
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "get",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.data.ticket_id }}"
+        }
+      }
+    },
+    {
+      "id": "376e66a3-0a2a-4b95-b670-3497ce76f2f7",
+      "name": "Note 9",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        40,
+        420
+      ],
+      "parameters": {
+        "content": "### Post published\nThe event data is the post itself: `data.id`, `data.status`, and `data.targets[]` with the live `url` per channel. Send the links to your team or write them back to your site.",
+        "width": 300,
+        "height": 210,
+        "color": 7
+      }
+    },
+    {
+      "id": "2fc858b1-e361-4ce5-8781-beed226de615",
+      "name": "Published: keep the links",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        480
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "69802c41-bbd5-4f12-9f59-99678373975f",
+              "name": "post_id",
+              "value": "={{ $json.data.id }}",
+              "type": "string"
+            },
+            {
+              "id": "7c3355b0-90ac-4719-a0d7-573fba27eee4",
+              "name": "links",
+              "value": "={{ ($json.data.targets || []).map(t => t.url).filter(Boolean).join(\", \") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "323dab30-9af8-4ade-89bb-a2d3fef02750",
+      "name": "Note 11",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        40,
+        660
+      ],
+      "parameters": {
+        "content": "### Post failed\n`data.targets[].error` holds each platform's reason. Alert someone, or activate the grey step to try again automatically (channels that already published are skipped).",
+        "width": 300,
+        "height": 210,
+        "color": 7
+      }
+    },
+    {
+      "id": "d78ca3bc-3a2d-4373-8aa1-00050e72a987",
+      "name": "Retry the post",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        400,
+        720
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "retry",
+        "postId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.data.id }}"
+        },
+        "waitUntilPublished": true
+      },
+      "disabled": true,
+      "notes": "PUBLISHES the failed post again once activated.",
+      "notesInFlow": true
+    },
+    {
+      "id": "2a869e6a-4f4b-46c3-89ed-71f978aeca17",
+      "name": "Note 13",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        40,
+        900
+      ],
+      "parameters": {
+        "content": "### SLA breached\n`data.breach_type` is first_response or resolution. Fetch the ticket and escalate.",
+        "width": 300,
+        "height": 210,
+        "color": 7
+      }
+    },
+    {
+      "id": "be216e9b-1472-4276-97ae-4b0d5a65b8ad",
+      "name": "Get the late ticket",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        400,
+        960
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "get",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.data.ticket_id }}"
+        }
+      }
+    },
+    {
+      "id": "4861b7f6-6b4f-4d5c-b971-6b98779338a5",
+      "name": "Note 15",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        40,
+        1140
+      ],
+      "parameters": {
+        "content": "### Everything else\nThe test event, and any event you ticked without giving it a branch, arrives here.",
+        "width": 300,
+        "height": 210,
+        "color": 7
+      }
+    },
+    {
+      "id": "e78c69d1-d2b5-45b3-b11d-fb0639153717",
+      "name": "Other events",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        400,
+        1200
+      ],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Ghamalim Trigger": {
+      "main": [
+        [
+          {
+            "node": "Which event?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Which event?": {
+      "main": [
+        [
+          {
+            "node": "Who wrote?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get the new ticket",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Published: keep the links",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retry the post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get the late ticket",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Other events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Who wrote?": {
+      "main": [
+        [
+          {
+            "node": "Auto-reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Asia/Manila"
+  }
+}

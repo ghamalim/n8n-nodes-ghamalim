@@ -1,0 +1,682 @@
+{
+  "name": "Ghamalim guide 5 - Inbox actions (update, tag, note, contacts, templates, forms)",
+  "nodes": [
+    {
+      "id": "0a7ee6b7-050c-4ea0-871c-a18018c177b1",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "1bb4fca8-d8c6-44cc-87d8-1fe1d44016d3",
+      "name": "Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        -300
+      ],
+      "parameters": {
+        "content": "## Ghamalim guide 5: Inbox actions\nClick **Execute workflow**: the steps that are switched on only read.\n\nGrey steps change a real conversation or contact, or send a real message. Activate one (select it, press **D**) only when you mean it.\n\nEvery change is recorded in Ghamalim as made by the member who created the API key.",
+        "width": 560,
+        "height": 240,
+        "color": 4
+      }
+    },
+    {
+      "id": "09bc8abf-8582-4291-b8e3-b3d7a9c195af",
+      "name": "Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -60
+      ],
+      "parameters": {
+        "content": "### 1. Find the right tickets\n**Get Many** takes filters: status, priority, assignee (or *Nobody* for unassigned), group, channel, contact, tag, created after and updated after. They combine.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "eedbb291-d066-44b4-bf76-7130e942fd86",
+      "name": "Unassigned pending tickets",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        0
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 5,
+        "filters": {
+          "status": "pending",
+          "assignedAgentId": "unassign"
+        }
+      }
+    },
+    {
+      "id": "da0a68d6-3623-4de5-81cf-a145bccdf134",
+      "name": "Changed in the last day",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        0
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 5,
+        "filters": {
+          "updatedAfter": "={{ $now.minus({ days: 1 }).toISO() }}"
+        }
+      }
+    },
+    {
+      "id": "87a97761-9135-494c-bd48-71c8723e2f6e",
+      "name": "Note 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        200
+      ],
+      "parameters": {
+        "content": "### 2. Update a ticket\nResolve, reopen, put on hold, snooze, change the priority, or assign. Only the fields you add are changed. Resolving also sends the satisfaction survey when one is set up.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "d529992c-0e9f-4e80-9d99-bef65f54c48b",
+      "name": "Pick a ticket",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        260
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {
+          "status": "pending"
+        }
+      }
+    },
+    {
+      "id": "5aa3ef34-fb2a-4388-b4c8-8f08b04459a7",
+      "name": "Set priority to high",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        260
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "update",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "ticketUpdateFields": {
+          "priority": "high"
+        }
+      },
+      "disabled": true,
+      "notes": "CHANGES that ticket.",
+      "notesInFlow": true
+    },
+    {
+      "id": "ee68e308-a74c-4758-9cd9-459876871a1d",
+      "name": "Snooze until tomorrow",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        600,
+        260
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "update",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Pick a ticket').item.json.id }}"
+        },
+        "ticketUpdateFields": {
+          "snoozedUntil": "={{ $now.plus({ days: 1 }).toISO() }}"
+        }
+      },
+      "disabled": true,
+      "notes": "HIDES that ticket until tomorrow.",
+      "notesInFlow": true
+    },
+    {
+      "id": "7b42d699-b2ba-4c2a-8a34-f69ba623eef8",
+      "name": "Note 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        460
+      ],
+      "parameters": {
+        "content": "### 3. Assign to a team\n**Assigned Group** hands the ticket to a team. A group with smart assignment also picks one of its members. Use **Assigned Agent** for one person, or *Nobody* to unassign.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "72804e8d-f0c5-4f35-865f-3c66aeb019c6",
+      "name": "List groups",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        520
+      ],
+      "parameters": {
+        "resource": "group",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 1
+      }
+    },
+    {
+      "id": "bffad5cc-6c5e-4cb2-90ba-e79aaebc95fe",
+      "name": "Assign to the group",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        520
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "update",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": ""
+        },
+        "ticketUpdateFields": {
+          "assignedGroupId": "={{ $json.id }}"
+        }
+      },
+      "disabled": true,
+      "notes": "ASSIGNS a ticket. Paste a Ticket ID first.",
+      "notesInFlow": true
+    },
+    {
+      "id": "6567a6a9-427d-45ff-b472-b7efb65273ae",
+      "name": "Note 5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        720
+      ],
+      "parameters": {
+        "content": "### 4. Tags\n**Add Tag** by name creates the tag when it does not exist yet. Both steps are safe to repeat: `changed` says whether anything happened.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "4d061ee2-55ff-4866-968e-2c515ad282fb",
+      "name": "Pick a ticket (tags)",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        780
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {
+          "status": "pending"
+        }
+      }
+    },
+    {
+      "id": "fb7c0d1b-50f1-416b-8d66-cc43bea6489f",
+      "name": "Add tag \"follow-up\"",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        780
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "addTag",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "tagBy": "name",
+        "tagName": "follow-up"
+      },
+      "disabled": true,
+      "notes": "TAGS that ticket.",
+      "notesInFlow": true
+    },
+    {
+      "id": "0a5a8808-2fb6-4be3-9767-0cb037ea1938",
+      "name": "Remove the tag again",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        600,
+        780
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "removeTag",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Pick a ticket (tags)').item.json.id }}"
+        },
+        "tagId": "={{ $json.tags[0].id }}"
+      },
+      "disabled": true,
+      "notes": "Removes the first tag of that ticket.",
+      "notesInFlow": true
+    },
+    {
+      "id": "77c123e5-732b-4766-bfe1-d7ea83360f31",
+      "name": "Note 6",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        980
+      ],
+      "parameters": {
+        "content": "### 5. Internal notes\nA note is shown to the team inside the conversation and is never sent to the customer. Good for handing over context from another system.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "a3438179-4637-4241-9908-9995f651c439",
+      "name": "Pick a ticket (notes)",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        1040
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {
+          "status": "pending"
+        }
+      }
+    },
+    {
+      "id": "885dfa75-fe6d-4f21-af26-f4d0ff785cfa",
+      "name": "Add a note",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        1040
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "addNote",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "noteContent": "Order #1042 was refunded in the shop system."
+      },
+      "disabled": true,
+      "notes": "ADDS a note to that ticket.",
+      "notesInFlow": true
+    },
+    {
+      "id": "aa6e8f54-8381-4cbb-8a2a-d2d9e4c75a62",
+      "name": "Read the notes",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        600,
+        1040
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "getNotes",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Pick a ticket (notes)').item.json.id }}"
+        },
+        "returnAll": false,
+        "limit": 10
+      }
+    },
+    {
+      "id": "b4eb0abd-a010-4284-bc93-e4ea70c8dd1b",
+      "name": "Note 7",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        1240
+      ],
+      "parameters": {
+        "content": "### 6. Create or update a contact\nLooks the contact up by phone, email or your own ID, updates it when found and creates it when not. The result says which in `created`. Attributes are added to the existing ones.",
+        "width": 300,
+        "height": 240,
+        "color": 7
+      }
+    },
+    {
+      "id": "ad56ff20-7285-4c47-ab0e-5ae9c72da19e",
+      "name": "Save a lead",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        1300
+      ],
+      "parameters": {
+        "resource": "contact",
+        "operation": "upsert",
+        "matchOn": "email",
+        "firstName": "Ana",
+        "email": "ana@example.com",
+        "phone": "",
+        "contactAdditionalFields": {
+          "lastName": "Reyes",
+          "attributes": {
+            "values": [
+              {
+                "name": "source",
+                "value": "website form"
+              }
+            ]
+          }
+        }
+      },
+      "disabled": true,
+      "notes": "CREATES or changes a contact.",
+      "notesInFlow": true
+    },
+    {
+      "id": "14d6f408-c869-4a49-a4ba-7f33e48bc4fa",
+      "name": "Note 8",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        1500
+      ],
+      "parameters": {
+        "content": "### 7. WhatsApp template\nThe way to write first, or after WhatsApp's 24-hour window closed. Sending to a phone number starts the conversation when there is none. The template must be approved: see guide 3 for the list.",
+        "width": 300,
+        "height": 240,
+        "color": 7
+      }
+    },
+    {
+      "id": "ab690f81-de0b-4929-b701-754d78810a6e",
+      "name": "Send a template",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        1560
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendTemplate",
+        "templateSendTo": "phone",
+        "channelId": "",
+        "toPhone": "",
+        "templateName": "hello_test_1",
+        "templateLanguage": "en_US",
+        "bodyParams": {},
+        "templateOptions": {
+          "idempotencyKey": "={{ $execution.id }}-{{ $itemIndex }}"
+        }
+      },
+      "disabled": true,
+      "notes": "SENDS a real WhatsApp message. Choose the channel and enter the phone number first.",
+      "notesInFlow": true
+    },
+    {
+      "id": "fdb8627c-3813-4dca-bf03-2007efbc31ca",
+      "name": "Note 9",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        1760
+      ],
+      "parameters": {
+        "content": "### 8. Send a form\nSends one of your forms as a link in the conversation. The answers arrive with the **Form Submitted** trigger (guide 7) and in **Form: Get Responses** (guide 6).",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "23224e5e-f4f9-44cf-9f32-f03ae4e9cc0e",
+      "name": "List forms",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        1820
+      ],
+      "parameters": {
+        "resource": "form",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 1
+      }
+    },
+    {
+      "id": "89f7a3f7-6072-4756-89c8-9b5489e5b788",
+      "name": "Send the form",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        1820
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "sendForm",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": ""
+        },
+        "formId": "={{ $json.id }}",
+        "formOptions": {
+          "idempotencyKey": "={{ $execution.id }}-{{ $itemIndex }}"
+        }
+      },
+      "disabled": true,
+      "notes": "SENDS a real message. Paste a Ticket ID first.",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Unassigned pending tickets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Changed in the last day",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Pick a ticket",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "List groups",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Pick a ticket (tags)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Pick a ticket (notes)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save a lead",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a template",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "List forms",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick a ticket": {
+      "main": [
+        [
+          {
+            "node": "Set priority to high",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set priority to high": {
+      "main": [
+        [
+          {
+            "node": "Snooze until tomorrow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List groups": {
+      "main": [
+        [
+          {
+            "node": "Assign to the group",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick a ticket (tags)": {
+      "main": [
+        [
+          {
+            "node": "Add tag \"follow-up\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add tag \"follow-up\"": {
+      "main": [
+        [
+          {
+            "node": "Remove the tag again",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick a ticket (notes)": {
+      "main": [
+        [
+          {
+            "node": "Add a note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add a note": {
+      "main": [
+        [
+          {
+            "node": "Read the notes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List forms": {
+      "main": [
+        [
+          {
+            "node": "Send the form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Asia/Manila"
+  }
+}

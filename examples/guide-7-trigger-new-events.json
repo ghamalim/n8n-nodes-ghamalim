@@ -1,0 +1,368 @@
+{
+  "name": "Ghamalim guide 7 - Trigger: forms, notes, tags, priority",
+  "nodes": [
+    {
+      "id": "0181f05e-1b8c-4bf1-bd1f-ab39d50607a0",
+      "name": "Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        -300
+      ],
+      "parameters": {
+        "content": "## Ghamalim guide 7: Trigger for forms, notes, tags and priority\nThis workflow is **off**. Turning it on registers a webhook in Ghamalim for the four events ticked in the trigger, and turning it off removes it.\n\nEvery step here only reads. Add your own steps after each branch.",
+        "width": 560,
+        "height": 240,
+        "color": 4
+      }
+    },
+    {
+      "id": "0ce80fc3-3849-4e46-b908-dc96ba5bb92d",
+      "name": "Ghamalim Trigger",
+      "type": "n8n-nodes-ghamalim.ghamalimTrigger",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        300
+      ],
+      "parameters": {
+        "events": [
+          "form.submitted",
+          "note.created",
+          "tag.removed",
+          "ticket.priority_changed"
+        ]
+      }
+    },
+    {
+      "id": "c2c1d210-be1a-4bf3-b208-4bfdad11a9e7",
+      "name": "Which event?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -240,
+        300
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e4ae5e32-52bb-4472-90d1-866c42d43324",
+                    "leftValue": "={{ $json.event }}",
+                    "rightValue": "form.submitted",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Form submitted"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8a4e377c-3b04-4453-bc24-f97094e44720",
+                    "leftValue": "={{ $json.event }}",
+                    "rightValue": "note.created",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Note created"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "44e30748-c9ef-4e68-a40b-d5364c973aed",
+                    "leftValue": "={{ $json.event }}",
+                    "rightValue": "tag.removed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Tag removed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "0bc56882-bc27-47a5-8636-7e591c587683",
+                    "leftValue": "={{ $json.event }}",
+                    "rightValue": "ticket.priority_changed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Priority changed"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      }
+    },
+    {
+      "id": "8a5c4b4a-c2a3-4c1e-8f1e-aeb29957b6e2",
+      "name": "Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        40,
+        -60
+      ],
+      "parameters": {
+        "content": "### Form submitted\nA customer answered a form. `data.answers` lists each question with its `label` and `value`; `data.contact_id` and `data.ticket_id` say who and where. A typical next step: save the answers to your CRM or a sheet.",
+        "width": 300,
+        "height": 210,
+        "color": 7
+      }
+    },
+    {
+      "id": "51e6ceef-29f6-4d82-808f-34474d071d65",
+      "name": "Who answered?",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        400,
+        0
+      ],
+      "parameters": {
+        "resource": "contact",
+        "operation": "get",
+        "contactId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.data.contact_id }}"
+        }
+      }
+    },
+    {
+      "id": "3a2135b2-ee30-4c25-abbb-0d3532217017",
+      "name": "Note 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        40,
+        180
+      ],
+      "parameters": {
+        "content": "### Note created\nSomeone on the team (or an automation) added an internal note. `data.content` is the text, `data.author_id` the member.",
+        "width": 300,
+        "height": 210,
+        "color": 7
+      }
+    },
+    {
+      "id": "5b3933db-eed6-413a-868f-b8139b587e1d",
+      "name": "Ticket of the note",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        400,
+        240
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "get",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.data.ticket_id }}"
+        }
+      }
+    },
+    {
+      "id": "db133bbc-fb7e-4f82-9abb-0c07cc23a0ed",
+      "name": "Note 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        40,
+        420
+      ],
+      "parameters": {
+        "content": "### Tag removed\n`data.tag_name` came off the ticket. Pair it with **Tag Added** to mirror tags into another system.",
+        "width": 300,
+        "height": 210,
+        "color": 7
+      }
+    },
+    {
+      "id": "257750d4-3f59-4c75-9b9d-dab30cdde641",
+      "name": "Tag was removed",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        400,
+        480
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "71ba3fc6-4df6-41c5-a0f7-5f76375bba24",
+      "name": "Note 5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        40,
+        660
+      ],
+      "parameters": {
+        "content": "### Priority changed\n`data.from` and `data.to` are low, medium, high or urgent. A typical next step: alert the team when a ticket becomes urgent.",
+        "width": 300,
+        "height": 210,
+        "color": 7
+      }
+    },
+    {
+      "id": "84733a4d-14e9-4cb8-8c12-2b7f151dc199",
+      "name": "Ticket with new priority",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        400,
+        720
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "get",
+        "ticketId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.data.ticket_id }}"
+        }
+      }
+    },
+    {
+      "id": "5db9a0b0-b0d5-495c-bc32-86a7ad849f02",
+      "name": "Note 6",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        40,
+        900
+      ],
+      "parameters": {
+        "content": "### Everything else\nThe test event arrives here.",
+        "width": 300,
+        "height": 210,
+        "color": 7
+      }
+    },
+    {
+      "id": "26340285-a079-4ae8-9c2d-e9d0cca0934d",
+      "name": "Other events",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        400,
+        960
+      ],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Ghamalim Trigger": {
+      "main": [
+        [
+          {
+            "node": "Which event?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Which event?": {
+      "main": [
+        [
+          {
+            "node": "Who answered?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ticket of the note",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tag was removed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ticket with new priority",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Other events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Asia/Manila"
+  }
+}

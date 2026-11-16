@@ -1,0 +1,375 @@
+{
+  "name": "Ghamalim guide 6 - Team, saved replies, forms, satisfaction",
+  "nodes": [
+    {
+      "id": "8cf1177a-82af-425d-8d85-d2003bc4444b",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "9fb3594e-46fd-4ba7-a628-1da6cb00df2e",
+      "name": "Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        -300
+      ],
+      "parameters": {
+        "content": "## Ghamalim guide 6: Team, saved replies, forms, satisfaction\nClick **Execute workflow**: everything that is switched on only reads.\n\nThe one grey step creates a label. Activate it (select it, press **D**) only when you mean it.",
+        "width": 560,
+        "height": 240,
+        "color": 4
+      }
+    },
+    {
+      "id": "8c49a78a-819d-4f19-9623-aedbafe65ebb",
+      "name": "Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -60
+      ],
+      "parameters": {
+        "content": "### 1. Groups\nYour teams. Use a group's ID as **Assigned Group** in Ticket: Update, or as a filter in Ticket: Get Many.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "9ca50648-403a-4631-b680-4564c9c8b45a",
+      "name": "List groups",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        0
+      ],
+      "parameters": {
+        "resource": "group",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 20
+      }
+    },
+    {
+      "id": "ffb71a14-cc23-46a3-93c3-650820548443",
+      "name": "Note 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        200
+      ],
+      "parameters": {
+        "content": "### 2. Saved replies\nThe ready-made texts your team shares. Find one by keyword and put its `body` into **Message: Send**. Private replies of a member are never listed.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "93eb3d20-4a37-41d7-8c27-95b487ba65ad",
+      "name": "Find a saved reply",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        260
+      ],
+      "parameters": {
+        "resource": "savedReply",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 5,
+        "filters": {
+          "search": "refund"
+        }
+      }
+    },
+    {
+      "id": "7f16c35d-e333-49a3-8006-3a9d4cbed97e",
+      "name": "Note 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        460
+      ],
+      "parameters": {
+        "content": "### 3. Forms and their answers\n**Get Many** lists your forms with their questions. **Get Responses** returns what customers answered, newest first, one item per response with the answers by question.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "592fdfc9-1412-4df6-b432-155f1aa24304",
+      "name": "List forms",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        520
+      ],
+      "parameters": {
+        "resource": "form",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 20
+      }
+    },
+    {
+      "id": "f6a04511-2475-49b2-8cda-22c24801578a",
+      "name": "First form",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        360,
+        520
+      ],
+      "parameters": {
+        "maxItems": 1
+      }
+    },
+    {
+      "id": "bfe6a638-bb0f-43bf-848e-38343b441c94",
+      "name": "Get its responses",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        600,
+        520
+      ],
+      "parameters": {
+        "resource": "form",
+        "operation": "getResponses",
+        "formId": "={{ $json.id }}",
+        "returnAll": false,
+        "limit": 10,
+        "responseState": "answered"
+      }
+    },
+    {
+      "id": "b855505a-ed65-4ceb-96f8-8a10f5bd1d18",
+      "name": "Note 5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        720
+      ],
+      "parameters": {
+        "content": "### 4. Satisfaction ratings\nThe 1 to 5 score and comment a customer gave after a conversation was resolved. Filter by score to find unhappy customers, or by date for a weekly report.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "897ded96-abd8-4a30-b6fa-0e6247035bd9",
+      "name": "Ratings of the last week",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        780
+      ],
+      "parameters": {
+        "resource": "satisfaction",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 50,
+        "filters": {
+          "createdAfter": "={{ $now.minus({ days: 7 }).toISO() }}"
+        }
+      }
+    },
+    {
+      "id": "adf8f415-3d72-4833-9732-101f6a150051",
+      "name": "Lowest ratings",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        780
+      ],
+      "parameters": {
+        "resource": "satisfaction",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 10,
+        "filters": {
+          "score": 1
+        }
+      }
+    },
+    {
+      "id": "e667fe96-f374-4017-b678-1a794114ecd2",
+      "name": "Note 6",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        980
+      ],
+      "parameters": {
+        "content": "### 5. Search contacts\n**Search** finds contacts by part of the name, email or phone. For an exact lookup from your own system use the Phone, Email or External ID filter instead (guide 2).",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "d0cdeae9-224e-4abb-a00b-99031d80ebdc",
+      "name": "Search contacts",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        1040
+      ],
+      "parameters": {
+        "resource": "contact",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 5,
+        "filters": {
+          "search": "ana"
+        }
+      }
+    },
+    {
+      "id": "877bba0a-bc69-45d7-b59e-df13fd3715f5",
+      "name": "Note 7",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        1240
+      ],
+      "parameters": {
+        "content": "### 6. Labels\n**Create** adds a label for posts and tickets. When the name is taken it returns the existing label, with `created: false`. **Delete** removes a label from everything for good.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "35456aae-caf7-4d2b-90ee-014a5d0d63ba",
+      "name": "List labels",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        1300
+      ],
+      "parameters": {
+        "resource": "label",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 50
+      }
+    },
+    {
+      "id": "e2bc2ef5-60df-45cf-a365-ee296a0b916c",
+      "name": "Create label \"vip\"",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        1300
+      ],
+      "parameters": {
+        "resource": "label",
+        "operation": "create",
+        "labelName": "vip",
+        "labelColor": "#f59e0b"
+      },
+      "disabled": true,
+      "notes": "CREATES a label (or returns the one that exists).",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "List groups",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Find a saved reply",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "List forms",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Ratings of the last week",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Lowest ratings",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Search contacts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "List labels",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create label \"vip\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List forms": {
+      "main": [
+        [
+          {
+            "node": "First form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "First form": {
+      "main": [
+        [
+          {
+            "node": "Get its responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Asia/Manila"
+  }
+}

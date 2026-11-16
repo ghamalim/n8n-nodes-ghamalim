@@ -1,0 +1,885 @@
+{
+  "name": "Ghamalim guide 1 - Posts",
+  "nodes": [
+    {
+      "id": "dfbea5e2-424d-4a84-9316-20696d77bc63",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "1b81c779-a63c-442e-af45-ce5e3865404c",
+      "name": "Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        -300
+      ],
+      "parameters": {
+        "content": "## Ghamalim guide 1: Posts\nClick **Execute workflow** to run every step that is switched on. Those only read data, or create a draft and delete it again, so nothing goes public.\n\nGrey (deactivated) steps publish, schedule or use your AI allowance. To try one: select it, press **D** to activate it, fill in what its note asks for, and run again.\n\nEvery step uses the credential **Ghamalim account**.",
+        "width": 560,
+        "height": 240,
+        "color": 4
+      }
+    },
+    {
+      "id": "772e3c02-bf9f-4b63-b881-8ff49324749b",
+      "name": "Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -60
+      ],
+      "parameters": {
+        "content": "### 1. Draft, edit, find, delete\nA full round trip that is safe to run. **Save as Draft** skips channels and platform rules. **External ID** is your own reference (a listing or product ID) so you can find the post again later.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "738ad107-b192-4d47-b250-5a7233ecddc6",
+      "name": "Create a draft",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        0
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "create",
+        "channelIds": [],
+        "caption": "Guide draft: new listing, 2-bedroom condo near BTS.",
+        "mediaUrls": "",
+        "additionalFields": {
+          "draft": true,
+          "externalId": "guide-draft-1"
+        }
+      }
+    },
+    {
+      "id": "afa7fba6-355c-4ebd-9145-542cfeff9af9",
+      "name": "Edit the draft",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        0
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "update",
+        "postId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "updateFields": {
+          "caption": "Guide draft (edited): 2-bedroom condo near BTS, ready to move in."
+        }
+      }
+    },
+    {
+      "id": "c4c2c123-5555-4d3b-9fcc-fc99549f36a2",
+      "name": "Get the post",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        600,
+        0
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "get",
+        "postId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        }
+      }
+    },
+    {
+      "id": "4a0ada9d-5297-405c-8f9a-6ce774cb85f6",
+      "name": "Find it by External ID",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        840,
+        0
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {
+          "externalId": "guide-draft-1"
+        }
+      }
+    },
+    {
+      "id": "de9b4879-9603-4c5f-946b-36153b324cf5",
+      "name": "Delete the draft",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        0
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "delete",
+        "postId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        }
+      }
+    },
+    {
+      "id": "82ce0b45-5e23-4502-b924-463c7149e411",
+      "name": "Note 8",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        200
+      ],
+      "parameters": {
+        "content": "### 2. List posts and best times\n**Get Many** lists posts newest first; add a Status filter (draft, scheduled, published, failed…). **Get Best Times** suggests posting times from your own history, in the workflow time zone.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "f69fcd4a-0c14-4766-b3f8-e34fd58904cd",
+      "name": "List latest posts",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        260
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 5,
+        "filters": {}
+      }
+    },
+    {
+      "id": "073a8e5b-2613-4d9f-841a-ce32ad6d0688",
+      "name": "Best times to post",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        260
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "getBestTimes",
+        "bestTimeOptions": {
+          "suggestions": 4
+        }
+      }
+    },
+    {
+      "id": "2e69c2d5-b2f3-4e4d-b4ad-151791423173",
+      "name": "Note 11",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        460
+      ],
+      "parameters": {
+        "content": "### 3. Publish now and get the live link\nPick one or more channels in **Channel Names or IDs** (one step can post to several). With **Wait Until Published** on, the step returns the final status and, per channel, the live `url` or the platform `error`. Off: it returns as soon as the post is accepted.\n\nInstagram and TikTok need media. TikTok also needs the field *TikTok: Visibility*.",
+        "width": 300,
+        "height": 300,
+        "color": 7
+      }
+    },
+    {
+      "id": "d356784d-1d6f-4722-aee4-738cc86a9b32",
+      "name": "Publish now (wait for result)",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        520
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "create",
+        "channelIds": [],
+        "caption": "Hello from n8n!",
+        "mediaUrls": "https://app.ghamalim.net/media/app/og-image.png",
+        "additionalFields": {
+          "idempotencyKey": "={{ $execution.id }}-publish"
+        },
+        "waitUntilPublished": true,
+        "maxWaitSeconds": 120
+      },
+      "disabled": true,
+      "notes": "PUBLISHES for real. Choose your channels first.",
+      "notesInFlow": true
+    },
+    {
+      "id": "cc1c83cb-7354-4206-9047-6b19e2558eb2",
+      "name": "Note 13",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        800
+      ],
+      "parameters": {
+        "content": "### 4. Schedule for later\n**Scheduled At** takes a date and time. A value without a time zone is read in the workflow time zone (Settings > Time zone). The example schedules for tomorrow at this time. A carousel is several image links separated by commas in **Media URLs**.",
+        "width": 300,
+        "height": 260,
+        "color": 7
+      }
+    },
+    {
+      "id": "882e3a42-7e4d-4dda-93f3-4e65c650bb7f",
+      "name": "Schedule for tomorrow",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        860
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "create",
+        "channelIds": [],
+        "caption": "Scheduled from n8n.",
+        "mediaUrls": "https://app.ghamalim.net/media/app/og-image.png",
+        "additionalFields": {
+          "scheduledAt": "={{ $now.plus({ days: 1 }).toISO() }}",
+          "externalId": "guide-scheduled-1"
+        }
+      },
+      "disabled": true,
+      "notes": "Schedules a real post. Choose your channels first. Delete it in Ghamalim > Posts if you do not want it to go out.",
+      "notesInFlow": true
+    },
+    {
+      "id": "adecaf7e-945a-42c6-9bac-1be9e9865f41",
+      "name": "Note 15",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        1100
+      ],
+      "parameters": {
+        "content": "### 5. Approval: approve\n**Require Approval** holds a post until an admin or supervisor approves it, here or in the app. Approve publishes it (or keeps its schedule). The API key must have been created by an admin or supervisor.",
+        "width": 300,
+        "height": 240,
+        "color": 7
+      }
+    },
+    {
+      "id": "f8f94b2e-c452-45d1-ac4b-0f73617fe9e0",
+      "name": "Create, needs approval",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        1160
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "create",
+        "channelIds": [],
+        "caption": "Waiting for approval.",
+        "mediaUrls": "https://app.ghamalim.net/media/app/og-image.png",
+        "additionalFields": {
+          "requireApproval": true
+        }
+      },
+      "disabled": true,
+      "notes": "Choose your channels first. Nothing is published until it is approved.",
+      "notesInFlow": true
+    },
+    {
+      "id": "8a7f7cb1-bb45-440a-98ee-fe0f29a29e14",
+      "name": "Approve",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        1160
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "approve",
+        "postId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "waitUntilPublished": true
+      },
+      "disabled": true,
+      "notes": "PUBLISHES the post from the step before.",
+      "notesInFlow": true
+    },
+    {
+      "id": "7dc75bdd-d813-41a0-b0dc-c261b55bebbf",
+      "name": "Note 18",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        1380
+      ],
+      "parameters": {
+        "content": "### 6. Approval: reject\nReject sends the post back with a reason the team sees in the app. Nothing is published.",
+        "width": 300,
+        "height": 200,
+        "color": 7
+      }
+    },
+    {
+      "id": "5f98b65b-1865-435c-9e11-0bf8e8673744",
+      "name": "Create, needs approval (2)",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        1440
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "create",
+        "channelIds": [],
+        "caption": "Waiting for approval.",
+        "mediaUrls": "https://app.ghamalim.net/media/app/og-image.png",
+        "additionalFields": {
+          "requireApproval": true
+        }
+      },
+      "disabled": true,
+      "notes": "Choose your channels first.",
+      "notesInFlow": true
+    },
+    {
+      "id": "9ef39603-c5f9-406a-b542-c36a16bbbf68",
+      "name": "Reject",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        1440
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "reject",
+        "postId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "reason": "Please use the new photo."
+      },
+      "disabled": true
+    },
+    {
+      "id": "56fd5bfb-6f88-413c-b8e4-ffc11ca28a36",
+      "name": "Note 21",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        1620
+      ],
+      "parameters": {
+        "content": "### 7. Publish a saved draft\nTurns a draft into a real post. Give the channels here if the draft has none. Add *Scheduled At* under Options to schedule it instead of publishing now.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "2587b5d4-458e-4baa-9a64-accc9ee5c36f",
+      "name": "Create a draft (to publish)",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        1680
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "create",
+        "channelIds": [],
+        "caption": "Draft that will be published.",
+        "mediaUrls": "https://app.ghamalim.net/media/app/og-image.png",
+        "additionalFields": {
+          "draft": true
+        }
+      },
+      "disabled": true
+    },
+    {
+      "id": "0483aed2-f0ab-4b8c-9aa3-dd8af8cbb4fb",
+      "name": "Publish the draft",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        1680
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "publish",
+        "postId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "publishOptions": {
+          "channelIds": []
+        },
+        "waitUntilPublished": true
+      },
+      "disabled": true,
+      "notes": "PUBLISHES for real. Choose channels under Options.",
+      "notesInFlow": true
+    },
+    {
+      "id": "e0e4abae-4826-4b80-808e-f75af04ebc17",
+      "name": "Note 24",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        1880
+      ],
+      "parameters": {
+        "content": "### 8. Retry a failed post\nPublishes a failed or partly published post again. Channels that already went out are skipped, so nothing is posted twice. Fix the cause first (usually an expired connection).",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "1e9cb67e-a3ee-4271-bb44-eb04cacf9677",
+      "name": "Find failed posts",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        1940
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {
+          "status": "failed"
+        }
+      }
+    },
+    {
+      "id": "2da0005e-a07b-4edc-8656-552fdd379830",
+      "name": "Retry",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        1940
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "retry",
+        "postId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "waitUntilPublished": true
+      },
+      "disabled": true,
+      "notes": "PUBLISHES the failed post again.",
+      "notesInFlow": true
+    },
+    {
+      "id": "77c84377-e4dd-4610-9d40-3d43c2ec37de",
+      "name": "Note 27",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        2140
+      ],
+      "parameters": {
+        "content": "### 9. Refresh insights\nFetches fresh reach and engagement numbers from Facebook and Instagram for a published post. Each target then has `insights`. Other platforms are skipped.",
+        "width": 300,
+        "height": 200,
+        "color": 7
+      }
+    },
+    {
+      "id": "03f92751-b2dd-4959-824f-01e250b84eb6",
+      "name": "Find published posts",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        2200
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {
+          "status": "published"
+        }
+      }
+    },
+    {
+      "id": "3a5a96a8-0694-4636-9b71-44523f50db37",
+      "name": "Refresh insights",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        2200
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "refreshInsights",
+        "postId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        }
+      }
+    },
+    {
+      "id": "16fd9901-46c1-45ff-b697-928dcc4d1ce4",
+      "name": "Note 30",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        2380
+      ],
+      "parameters": {
+        "content": "### 10. Write captions with AI\nReturns one caption per platform from a short brief. Nothing is posted: use the text you like as the Caption of a Create step, e.g. `{{ $json.caption }}`. Counts as one AI session of your plan.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "1fabbb11-c0d6-4e11-9795-5f07d6a45173",
+      "name": "Generate captions",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        2440
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "generateCaptions",
+        "brief": "New 2-bedroom condo near BTS Thong Lo, fully furnished, 35,000 THB per month. Friendly invitation to book a viewing.",
+        "captionOptions": {
+          "platforms": [
+            "facebook",
+            "instagram"
+          ],
+          "tone": "friendly"
+        }
+      },
+      "disabled": true,
+      "notes": "Uses one AI session of your plan.",
+      "notesInFlow": true
+    },
+    {
+      "id": "76af57ab-4518-4b96-bf92-f2fcfe34fd1c",
+      "name": "Note 32",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        2640
+      ],
+      "parameters": {
+        "content": "### 11. Post a file that is not online yet\nMedia must be a public https link. For a file that only exists inside the workflow, **Media > Upload** stores it and returns a link; pass that link to the post as `{{ $json.url }}`.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "7150cdc8-3280-49c0-bd9a-dbd934bec03b",
+      "name": "Download an image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        120,
+        2700
+      ],
+      "parameters": {
+        "url": "https://app.ghamalim.net/media/app/og-image.png",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "d29c9cf2-a0ec-44d2-9fb5-8fd305780684",
+      "name": "Upload to Ghamalim",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        360,
+        2700
+      ],
+      "parameters": {
+        "resource": "media",
+        "operation": "upload",
+        "binaryPropertyName": "data"
+      },
+      "disabled": true,
+      "notes": "Stores the file in your Ghamalim media.",
+      "notesInFlow": true
+    },
+    {
+      "id": "d41bcf3c-50e5-4088-9ff0-af68a64f445b",
+      "name": "Post the uploaded file",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        600,
+        2700
+      ],
+      "parameters": {
+        "resource": "post",
+        "operation": "create",
+        "channelIds": [],
+        "caption": "Posted from an uploaded file.",
+        "mediaUrls": "={{ $json.url }}",
+        "additionalFields": {},
+        "waitUntilPublished": true
+      },
+      "disabled": true,
+      "notes": "PUBLISHES for real. Choose your channels first.",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "List latest posts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Best times to post",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Publish now (wait for result)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Schedule for tomorrow",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create, needs approval",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create, needs approval (2)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a draft (to publish)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Find failed posts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Find published posts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate captions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Download an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft": {
+      "main": [
+        [
+          {
+            "node": "Edit the draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit the draft": {
+      "main": [
+        [
+          {
+            "node": "Get the post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get the post": {
+      "main": [
+        [
+          {
+            "node": "Find it by External ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find it by External ID": {
+      "main": [
+        [
+          {
+            "node": "Delete the draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create, needs approval": {
+      "main": [
+        [
+          {
+            "node": "Approve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create, needs approval (2)": {
+      "main": [
+        [
+          {
+            "node": "Reject",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft (to publish)": {
+      "main": [
+        [
+          {
+            "node": "Publish the draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find failed posts": {
+      "main": [
+        [
+          {
+            "node": "Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find published posts": {
+      "main": [
+        [
+          {
+            "node": "Refresh insights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download an image": {
+      "main": [
+        [
+          {
+            "node": "Upload to Ghamalim",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Ghamalim": {
+      "main": [
+        [
+          {
+            "node": "Post the uploaded file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Asia/Manila"
+  }
+}

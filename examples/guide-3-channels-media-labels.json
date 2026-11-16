@@ -1,0 +1,471 @@
+{
+  "name": "Ghamalim guide 3 - Channels, media, labels",
+  "nodes": [
+    {
+      "id": "03afb869-c4f5-4142-bbc3-b1c189613858",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "4dd647c9-eb65-4426-9231-c462d3a42b98",
+      "name": "Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        -300
+      ],
+      "parameters": {
+        "content": "## Ghamalim guide 3: Channels, media, labels\nEverything here only reads data. Click **Execute workflow**.\n\nThese are the lookups you use to fill in other steps: which channels exist and what each can do, WhatsApp templates, TikTok rules, labels for posts, and media you have used before.",
+        "width": 560,
+        "height": 240,
+        "color": 4
+      }
+    },
+    {
+      "id": "ccb945b5-1eb7-4e1f-b619-d03b0d77d148",
+      "name": "Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -60
+      ],
+      "parameters": {
+        "content": "### 1. Channels and what they can do\n**Get Many** lists every connected channel. `capabilities.api` tells you what this node can do on it: `publish_posts`, `send_text`, `send_media`, `moderate_comments`. **Get** returns one (LINE also shows its monthly message quota).",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "895445be-273b-4c35-9f17-94c2ff1fa590",
+      "name": "List channels",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        0
+      ],
+      "parameters": {
+        "resource": "channel",
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {}
+      }
+    },
+    {
+      "id": "6c38435b-9f65-4414-8874-11b6d73343a3",
+      "name": "Keep the first",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        360,
+        0
+      ],
+      "parameters": {
+        "maxItems": 1
+      }
+    },
+    {
+      "id": "7484bc8f-2189-4122-a4f2-871f855465a3",
+      "name": "Get that channel",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        600,
+        0
+      ],
+      "parameters": {
+        "resource": "channel",
+        "operation": "get",
+        "channelId": "={{ $json.id }}"
+      }
+    },
+    {
+      "id": "7fd210c5-0678-4229-9f55-08b32ce84d2b",
+      "name": "Note 6",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        200
+      ],
+      "parameters": {
+        "content": "### 2. WhatsApp templates\nLists the approved templates of a WhatsApp channel (name, language, body text, number of placeholders). In your own workflow just pick the channel from the dropdown.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "9f6d380e-6e5e-4862-b5a4-aeb3484c628e",
+      "name": "WhatsApp channels",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        260
+      ],
+      "parameters": {
+        "resource": "channel",
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "type": "whatsapp"
+        }
+      }
+    },
+    {
+      "id": "8079f5c8-50d4-4c1d-bde8-156e1734f104",
+      "name": "Connected only",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        360,
+        260
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "90d82a69-4642-4e83-9711-5e29b67f8c9e",
+              "leftValue": "={{ $json.is_connected }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "7f573c9c-dbc4-41f8-ac50-91d21cdb95eb",
+      "name": "First WhatsApp channel",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        600,
+        260
+      ],
+      "parameters": {
+        "maxItems": 1
+      }
+    },
+    {
+      "id": "3c4b8d97-179a-4fd2-b056-e44aa16fdf4b",
+      "name": "Get its templates",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        840,
+        260
+      ],
+      "parameters": {
+        "resource": "channel",
+        "operation": "getTemplates",
+        "channelId": "={{ $json.id }}"
+      }
+    },
+    {
+      "id": "0f6a71fe-6f75-40a5-b83c-9dab103ab9a6",
+      "name": "Note 11",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        460
+      ],
+      "parameters": {
+        "content": "### 3. TikTok posting options\nWhat the connected TikTok account allows right now: the visibilities you may post with, whether comments, duet and stitch are off, and the longest video. Use it to choose *TikTok: Visibility* on a post.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "40c12559-ab7b-4721-9736-b5c55ea5809c",
+      "name": "TikTok channels",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        520
+      ],
+      "parameters": {
+        "resource": "channel",
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "type": "tiktok_posting"
+        }
+      }
+    },
+    {
+      "id": "aa84a29e-c395-43e0-b8de-fc4d5ed3fd68",
+      "name": "Connected only (TikTok)",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        360,
+        520
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7b209760-0728-4555-88e6-93bbcc6affa0",
+              "leftValue": "={{ $json.is_connected }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "a4233595-890d-43b4-97dd-dc403878848d",
+      "name": "First TikTok channel",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        600,
+        520
+      ],
+      "parameters": {
+        "maxItems": 1
+      }
+    },
+    {
+      "id": "f3c5cf6c-ff3c-4153-80b7-c08fafae1aab",
+      "name": "Get TikTok options",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        840,
+        520
+      ],
+      "parameters": {
+        "resource": "channel",
+        "operation": "getTiktokOptions",
+        "channelId": "={{ $json.id }}"
+      }
+    },
+    {
+      "id": "e8464af0-6c2a-4146-a029-2eca47f374a0",
+      "name": "Note 16",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        720
+      ],
+      "parameters": {
+        "content": "### 4. Labels\nThe labels you can put on a post (the same tags used on tickets). They are created in the app under Settings > Tags. In a Create step choose them under Additional Fields > Label Names or IDs.",
+        "width": 300,
+        "height": 220,
+        "color": 7
+      }
+    },
+    {
+      "id": "f23a15c1-46df-469f-b677-41f01c8f5dd9",
+      "name": "List labels",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        780
+      ],
+      "parameters": {
+        "resource": "label",
+        "operation": "getAll",
+        "returnAll": true
+      }
+    },
+    {
+      "id": "fab3becd-a54e-4a3a-933e-df219acb5d66",
+      "name": "Note 18",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        980
+      ],
+      "parameters": {
+        "content": "### 5. Media library\nImages and videos recently used in posts, newest first. Reuse a `url` in a new post.",
+        "width": 300,
+        "height": 180,
+        "color": 7
+      }
+    },
+    {
+      "id": "0320eb4c-66c9-4e20-bbd2-63a3b04a397c",
+      "name": "List recent media",
+      "type": "n8n-nodes-ghamalim.ghamalim",
+      "typeVersion": 1,
+      "position": [
+        120,
+        1040
+      ],
+      "parameters": {
+        "resource": "media",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 10
+      }
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "List channels",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "WhatsApp channels",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "TikTok channels",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "List labels",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "List recent media",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List channels": {
+      "main": [
+        [
+          {
+            "node": "Keep the first",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep the first": {
+      "main": [
+        [
+          {
+            "node": "Get that channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp channels": {
+      "main": [
+        [
+          {
+            "node": "Connected only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Connected only": {
+      "main": [
+        [
+          {
+            "node": "First WhatsApp channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "First WhatsApp channel": {
+      "main": [
+        [
+          {
+            "node": "Get its templates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TikTok channels": {
+      "main": [
+        [
+          {
+            "node": "Connected only (TikTok)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Connected only (TikTok)": {
+      "main": [
+        [
+          {
+            "node": "First TikTok channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "First TikTok channel": {
+      "main": [
+        [
+          {
+            "node": "Get TikTok options",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Asia/Manila"
+  }
+}

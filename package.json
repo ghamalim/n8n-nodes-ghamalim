@@ -1,0 +1,59 @@
+{
+	"name": "n8n-nodes-ghamalim",
+	"version": "0.5.0",
+	"description": "n8n community node for Ghamalim: publish social posts, reply to customers and react to inbox events",
+	"license": "MIT",
+	"homepage": "https://docs.ghamalim.net",
+	"keywords": [
+		"n8n-community-node-package",
+		"ghamalim",
+		"social media",
+		"helpdesk",
+		"whatsapp",
+		"line",
+		"instagram",
+		"facebook"
+	],
+	"author": {
+		"name": "Ghamalim Designs",
+		"email": "ghamalim0@gmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ghamalim/n8n-nodes-ghamalim.git"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease",
+		"test": "npm run build && node --test test/*.test.js"
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/GhamalimApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/Ghamalim/Ghamalim.node.js",
+			"dist/nodes/Ghamalim/GhamalimTrigger.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "*",
+		"eslint": "9.32.0",
+		"prettier": "3.6.2",
+		"release-it": "^21.1.0",
+		"typescript": "5.9.2"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
