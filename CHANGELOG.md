@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1
+
+- New Ghamalim logo for the node, the trigger and the credential.
+
 ## 0.5.0
 
 - **Ticket, Contact, Post and Message** selectors are now pickers: choose **From List** (newest first,
